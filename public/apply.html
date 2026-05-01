@@ -1,0 +1,125 @@
+<section class="px-4 max-w-3xl mx-auto w-full pt-12 relative fade-in">
+  <div class="mb-10 text-center">
+    <h2 class="text-4xl md:text-5xl font-display font-black tracking-tighter uppercase text-white">
+      ПОДАЧА <span class="text-red-500">ЗАЯВКИ</span>
+    </h2>
+    <p class="text-white/40 font-mono text-sm mt-2">ТЕРМИНАЛ РЕГИСТРАЦИИ</p>
+  </div>
+
+  <div class="relative">
+    <!-- Lock Overlay -->
+    <div id="apply-lock-overlay" class="absolute inset-0 z-50 glass-panel flex flex-col items-center justify-center p-8 text-center backdrop-blur-xl border-red-500/20">
+       <i data-lucide="lock" class="text-red-500 mb-4 w-12 h-12"></i>
+       <h3 class="text-2xl font-display font-bold text-white mb-2">ТЕРМИНАЛ ЗАБЛОКИРОВАН</h3>
+       <p class="text-white/60 max-w-sm mb-6">Прием заявок откроется 10 мая 2026 года в 12:00 (МСК).</p>
+       
+       <form id="bypass-form" class="w-full max-w-xs flex flex-col gap-3 mt-4">
+         <input 
+           type="text" 
+           id="bypass-login"
+           placeholder="Идентификатор" 
+           class="w-full bg-black/50 border border-white/10 p-3 text-sm text-white focus:border-red-500 outline-none text-center font-mono placeholder:text-white/20 transition-colors"
+         />
+         <input 
+           type="password" 
+           id="bypass-password"
+           placeholder="Пароль доступа" 
+           class="w-full bg-black/50 border border-white/10 p-3 text-sm text-white focus:border-red-500 outline-none text-center font-mono placeholder:text-white/20 transition-colors"
+         />
+         <button 
+           type="submit" 
+           class="w-full border border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-500 py-3 text-xs font-mono uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mt-2"
+         >
+           <i data-lucide="key-round" class="w-4 h-4"></i> СНЯТЬ БЛОКИРОВКУ
+         </button>
+         <p id="bypass-error" class="hidden text-xs font-mono text-red-500 mt-2 animate-pulse">ДОСТУП ЗАПРЕЩЕН. НЕВЕРНЫЕ ДАННЫЕ.</p>
+       </form>
+    </div>
+
+    <div id="apply-form-container" class="glass-panel p-6 md:p-10 opacity-20 pointer-events-none select-none filter blur-sm">
+      <div class="flex bg-white/5 p-1 mb-8" id="role-tabs">
+        <button
+          onclick="window.app.setApplyRole('participant')"
+          class="apply-tab flex-1 py-3 text-sm font-display uppercase tracking-widest transition-all bg-red-500 text-white font-bold"
+          data-role="participant"
+        >
+          Я участник
+        </button>
+        <button
+          onclick="window.app.setApplyRole('jury')"
+          class="apply-tab flex-1 py-3 text-sm font-display uppercase tracking-widest transition-all text-white/50 hover:text-white"
+          data-role="jury"
+        >
+          Я жюри
+        </button>
+      </div>
+
+      <form id="main-apply-form"
+        action="https://formspree.io/f/xzdyoeyk" 
+        method="POST"
+        class="space-y-6"
+      >
+        <input type="hidden" name="Role" id="form-role-input" value="PARTICIPANT" />
+        <input type="hidden" name="HuevisionID" id="huevision-id-input" value="" />
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-xs font-display text-white/50 mb-2 uppercase tracking-widest">Никнейм</label>
+            <input type="text" name="Nickname" required class="w-full bg-white/5 border border-white/10 rounded-none p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-red-500/50 focus:bg-white/10 transition-colors font-sans" placeholder="Введите ваш псевдоним" />
+          </div>
+
+          <div id="country-field">
+            <label class="block text-xs font-display text-white/50 mb-2 uppercase tracking-widest">Страна</label>
+            <input type="text" name="Country" id="country-input" required class="w-full bg-white/5 border border-white/10 rounded-none p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-red-500/50 focus:bg-white/10 transition-colors font-sans" placeholder="Например: Россия, Москва" />
+          </div>
+        </div>
+
+        <div id="track-name-field">
+          <label class="block text-xs font-display text-white/50 mb-2 uppercase tracking-widest">Название трека</label>
+          <input type="text" name="TrackName" id="track-name-input" required class="w-full bg-white/5 border border-white/10 rounded-none p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-red-500/50 focus:bg-white/10 transition-colors font-sans" placeholder="Название вашей работы" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-display text-white/50 mb-2 uppercase tracking-widest">Биография</label>
+          <textarea 
+            name="Biography" 
+            required 
+            rows="4" 
+            class="w-full bg-white/5 border border-white/10 rounded-none p-3 text-white placeholder:text-white/20 focus:outline-none focus:border-red-500/50 focus:bg-white/10 transition-colors font-sans resize-none" 
+            placeholder="Расскажите о себе..."
+          ></textarea>
+        </div>
+
+        <button 
+          type="submit"
+          class="w-full py-4 mt-4 bg-white text-black font-display font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] flex justify-center items-center gap-2"
+        >
+          <i data-lucide="file-warning" class="w-5 h-5"></i>
+          Отправить заявку
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
+    <div class="relative z-10 glass-panel p-8 md:p-12 max-w-lg w-full mx-4 text-center border-red-500/30">
+      <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i data-lucide="check" class="w-10 h-10 text-green-500"></i>
+      </div>
+      <h2 class="text-3xl font-display font-bold text-white mb-2 uppercase">ЗАЯВКА ОТПРАВЛЕНА</h2>
+      <p class="text-white/60 mb-8 font-sans">
+        Сделай скриншот этого экрана. Тебе понадобится этот ID для отправки материалов в нашего Telegram-бота.
+      </p>
+      <div class="bg-black/50 border border-white/10 p-6 mb-8 mt-4 rounded-none">
+        <p class="text-xs font-display text-white/40 uppercase tracking-widest mb-2">ВАШ УНИКАЛЬНЫЙ ID</p>
+        <p id="generated-id-display" class="text-4xl font-mono font-bold text-red-500 tracking-widest select-all">HUE-XXXXXX</p>
+      </div>
+      <a href="https://t.me/HuevisionBot" target="_blank" class="w-full py-4 px-6 bg-red-500 text-white font-display font-bold uppercase tracking-widest hover:bg-red-600 transition-colors inline-flex justify-center items-center gap-2">
+        <i data-lucide="send" class="w-5 h-5"></i>
+        Перейти в бот
+      </a>
+    </div>
+  </div>
+</section>
