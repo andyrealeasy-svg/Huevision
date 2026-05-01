@@ -352,14 +352,34 @@ class VanillaApp {
     document.getElementById('form-role-input').value = role.toUpperCase();
     
     // Toggle visibilities
-    document.getElementById('country-field').style.display = role === 'participant' ? 'block' : 'none';
-    document.getElementById('track-name-field').style.display = role === 'participant' ? 'block' : 'none';
-    document.getElementById('audio-field').style.display = role === 'participant' ? 'block' : 'none';
+    const countryField = document.getElementById('country-field');
+    const trackNameField = document.getElementById('track-name-field');
+    const audioField = document.getElementById('audio-field');
+    const photoFieldCont = document.getElementById('photo-field-container');
+
+    const countryInput = document.getElementById('country-input');
+    const trackNameInput = document.getElementById('track-name-input');
+    const audioInput = document.getElementById('audio-input');
+
+    if(countryField) {
+      countryField.style.display = role === 'participant' ? 'block' : 'none';
+      if(countryInput) countryInput.required = role === 'participant';
+    }
+    if(trackNameField) {
+      trackNameField.style.display = role === 'participant' ? 'block' : 'none';
+      if(trackNameInput) trackNameInput.required = role === 'participant';
+    }
+    if(audioField) {
+      audioField.style.display = role === 'participant' ? 'block' : 'none';
+      if(audioInput) audioInput.required = role === 'participant';
+    }
     
-    if (role === 'jury') {
-      document.getElementById('photo-field-container').classList.add('md:col-span-2');
-    } else {
-      document.getElementById('photo-field-container').classList.remove('md:col-span-2');
+    if(photoFieldCont) {
+      if (role === 'jury') {
+        photoFieldCont.classList.add('md:col-span-2');
+      } else {
+        photoFieldCont.classList.remove('md:col-span-2');
+      }
     }
   }
 
