@@ -82,10 +82,10 @@ class VanillaApp {
 
     // Default route
     const path = window.location.pathname;
-    if (path.includes('apply')) this.navigate('form', '/apply.html');
-    else if (path.includes('media')) this.navigate('audio', '/media.html');
-    else if (path.includes('lineup')) this.navigate('lineup', '/lineup.html');
-    else this.navigate('hub', '/hub.html');
+    if (path.includes('apply')) this.navigate('form', './apply.html');
+    else if (path.includes('media')) this.navigate('audio', './media.html');
+    else if (path.includes('lineup')) this.navigate('lineup', './lineup.html');
+    else this.navigate('hub', './hub.html');
   }
 
   updateNavState(activeTab) {
@@ -103,10 +103,10 @@ class VanillaApp {
 
   async navigate(tab, url) {
     if(!url) {
-       if (tab === 'form') url = '/apply.html';
-       else if (tab === 'audio') url = '/media.html';
-       else if (tab === 'lineup') url = '/lineup.html';
-       else url = '/hub.html';
+       if (tab === 'form') url = './apply.html';
+       else if (tab === 'audio') url = './media.html';
+       else if (tab === 'lineup') url = './lineup.html';
+       else url = './hub.html';
     }
     
     this.updateNavState(tab);

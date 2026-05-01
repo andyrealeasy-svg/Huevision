@@ -22,7 +22,7 @@
     }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="./styles.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="min-h-screen bg-black text-white font-sans selection:bg-red-500/30 selection:text-red-500 flex flex-col">
@@ -35,31 +35,31 @@
     <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
       <div 
         class="text-red-500 font-display font-black text-xl tracking-widest uppercase cursor-pointer"
-        onclick="window.app.navigate('hub', '/hub.html')"
+        onclick="window.app.navigate('hub', './hub.html')"
       >
         HUEVISION<span class="text-white ml-1 text-sm glow">26</span>
       </div>
       
       <div class="hidden md:flex items-center space-x-1 nav-links">
-        <a href="/hub.html" data-tab="hub" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-red-500">
+        <a href="./hub.html" data-tab="hub" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-red-500">
           <span class="relative z-10 flex items-center gap-2">
             <i data-lucide="skull" class="w-4 h-4"></i>
             ГЛАВНАЯ
           </span>
         </a>
-        <a href="/lineup.html" data-tab="lineup" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white">
+        <a href="./lineup.html" data-tab="lineup" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white">
           <span class="relative z-10 flex items-center gap-2">
             <i data-lucide="users" class="w-4 h-4"></i>
             ЛАЙНАП
           </span>
         </a>
-        <a href="/media.html" data-tab="audio" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white">
+        <a href="./media.html" data-tab="audio" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white">
           <span class="relative z-10 flex items-center gap-2">
             <i data-lucide="play" class="w-4 h-4"></i>
             МЕДИАЦЕНТР
           </span>
         </a>
-        <a href="/apply.html" data-tab="form" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white">
+        <a href="./apply.html" data-tab="form" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white">
           <span class="relative z-10 flex items-center gap-2">
             <i data-lucide="file-text" class="w-4 h-4"></i>
             ЗАЯВКА
@@ -68,16 +68,16 @@
       </div>
 
       <div class="flex md:hidden items-center space-x-2 nav-links">
-        <a href="/hub.html" data-tab="hub" class="p-3 text-red-500">
+        <a href="./hub.html" data-tab="hub" class="p-3 text-red-500">
           <i data-lucide="skull" class="w-5 h-5"></i>
         </a>
-        <a href="/lineup.html" data-tab="lineup" class="p-3 text-white/60 hover:text-white">
+        <a href="./lineup.html" data-tab="lineup" class="p-3 text-white/60 hover:text-white">
           <i data-lucide="users" class="w-5 h-5"></i>
         </a>
-        <a href="/media.html" data-tab="audio" class="p-3 text-white/60 hover:text-white">
+        <a href="./media.html" data-tab="audio" class="p-3 text-white/60 hover:text-white">
           <i data-lucide="play" class="w-5 h-5"></i>
         </a>
-        <a href="/apply.html" data-tab="form" class="p-3 text-white/60 hover:text-white">
+        <a href="./apply.html" data-tab="form" class="p-3 text-white/60 hover:text-white">
           <i data-lucide="file-text" class="w-5 h-5"></i>
         </a>
       </div>
@@ -95,6 +95,6 @@
     </div>
   </footer>
 
-  <script type="module" src="/public/app.js"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
