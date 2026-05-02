@@ -79,31 +79,22 @@ class VanillaApp {
   }
 
   initRouter() {
-    window.addEventListener('hashchange', () => {
-      this.handleHashRoute();
-    });
-
     document.querySelectorAll('.nav-links a').forEach(link => {
       link.addEventListener('click', e => {
-        // We let the browser handle the hash change natively, which will trigger handleHashRoute
+        e.preventDefault();
+        const tab = e.currentTarget.getAttribute('data-tab');
+        const href = e.currentTarget.getAttribute('href');
+        this.navigate(tab, href);
       });
     });
 
-    this.handleHashRoute();
-  }
-
-  handleHashRoute() {
-    const hash = window.location.hash || '#hub';
-    
-    // Clear old intervals
-    if (this.timerInterval) clearInterval(this.timerInterval);
-    if (this.applyInterval) clearInterval(this.applyInterval);
-
-    if (hash === '#apply' || hash === '#form') this.navigate('form', '/views/apply.html');
-    else if (hash === '#media' || hash === '#audio') this.navigate('audio', '/views/media.html');
-    else if (hash === '#lineup') this.navigate('lineup', '/views/lineup.html');
-    else if (hash === '#rules') this.navigate('rules', '/views/rules.html');
-    else this.navigate('hub', '/views/hub.html');
+    // Default route
+    const path = window.location.pathname;
+    if (path.includes('apply')) this.navigate('form', './apply.html');
+    else if (path.includes('media')) this.navigate('audio', './media.html');
+    else if (path.includes('lineup')) this.navigate('lineup', './lineup.html');
+    else if (path.includes('rules')) this.navigate('rules', './rules.html');
+    else this.navigate('hub', './hub.html');
   }
 
   updateNavState(activeTab) {
@@ -121,22 +112,15 @@ class VanillaApp {
 
   async navigate(tab, url) {
     if(!url) {
-       if (tab === 'form') url = '/views/apply.html';
-       else if (tab === 'audio') url = '/views/media.html';
-       else if (tab === 'lineup') url = '/views/lineup.html';
-       else if (tab === 'rules') url = '/views/rules.html';
-       else url = '/views/hub.html';
+       if (tab === 'form') url = './apply.html';
+       else if (tab === 'audio') url = './media.html';
+       else if (tab === 'lineup') url = './lineup.html';
+       else if (tab === 'rules') url = './rules.html';
+       else url = './hub.html';
     }
     
     this.updateNavState(tab);
-    
-    // If we're calling navigate manually (not from hashchange)
-    let hashName = tab;
-    if(tab === 'form') hashName = 'apply';
-    if(tab === 'audio') hashName = 'media';
-    if(window.location.hash !== '#' + hashName) {
-      window.history.pushState({}, '', '#' + hashName);
-    }
+    window.history.pushState({}, '', url);
 
     try {
       const html = await fetch(url).then(res => res.text());
