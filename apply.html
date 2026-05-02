@@ -7,6 +7,44 @@
   </div>
 
   <div class="relative">
+    <!-- Rules Modal (Shown only when unlocked and before filling form) -->
+    <div id="apply-rules-modal" class="absolute inset-0 z-[60] bg-black/95 backdrop-blur-md flex-col items-center justify-start p-4 md:p-8 overflow-y-auto hidden">
+      <div class="max-w-3xl mx-auto w-full glass-panel p-6 md:p-10 border-red-500/30">
+        <h3 class="text-3xl font-display font-black text-white mb-6 uppercase text-center flex items-center justify-center gap-3">
+          <i data-lucide="scroll-text" class="text-red-500 w-8 h-8"></i>
+          Правила подачи
+        </h3>
+        
+        <div class="space-y-6 text-sm md:text-base font-sans text-white/80 mb-8">
+          <div class="flex gap-4">
+            <span class="font-display font-bold text-red-500 text-xl">1.</span>
+            <p>Трек не должен копировать какую-либо композицию, иначе заявка не будет принята. Использовать бит, который не относится к какой-либо композиции, можно (например, type beat с Ютуба).</p>
+          </div>
+          <div class="flex gap-4">
+            <span class="font-display font-bold text-red-500 text-xl">2.</span>
+            <p>Без ID, который Вам будет выдан после отправки заявки, она не может быть рассмотрена. Не забудьте сделать скриншот, либо скопировать ID.</p>
+          </div>
+          <div class="flex gap-4">
+            <span class="font-display font-bold text-red-500 text-xl">3.</span>
+            <p>Подавая свой трек, Вы не можете его выпустить, пока не выйдет альбом (или EP в зависимости от количества треков) с треками Хуевидения.</p>
+          </div>
+          <div class="flex gap-4">
+            <span class="font-display font-bold text-red-500 text-xl">4.</span>
+            <p>Биография должна занимать как минимум 30 символов, но не должна быть слишком большой.</p>
+          </div>
+          <div class="flex gap-4">
+            <span class="font-display font-bold text-red-500 text-xl">5.</span>
+            <p>Сделайте такой трек, который понравится Вам и, как Вы думаете, другим, а остальное неважно, ведь главное — участие.</p>
+          </div>
+        </div>
+
+        <button id="accept-rules-btn" class="w-full py-4 mt-4 bg-red-500 text-white font-display font-bold uppercase tracking-widest hover:bg-red-600 transition-all flex justify-center items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+          Я ознакомился и согласен
+        </button>
+      </div>
+    </div>
+
     <!-- Lock Overlay -->
     <div id="apply-lock-overlay" class="absolute inset-0 z-50 glass-panel flex flex-col items-center justify-center p-8 text-center backdrop-blur-xl border-red-500/20">
        <i data-lucide="lock" class="text-red-500 mb-4 w-12 h-12"></i>

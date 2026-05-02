@@ -54,18 +54,26 @@ class VanillaApp {
     this.audio = new Audio();
     this.currentTrackIndex = 0;
     this.isPlaying = false;
-    this.isRepeat = false;
+    this.repeatMode = 0;
     this.showPlaylist = false;
     this.audioFilterYear = 'ALL';
     this.duration = 0;
     this.targetDate = new Date('2026-05-10T12:00:00+03:00').getTime();
     
-    this.initRouter();
-    
     // Global audio bindings
     this.audio.addEventListener('timeupdate', () => this.updateAudioProgress());
     this.audio.addEventListener('loadedmetadata', () => { this.duration = this.audio.duration; this.updateAudioProgress()});
-    this.audio.addEventListener('ended', () => this.nextTrack());
+    this.audio.addEventListener('ended', () => {
+      if (this.repeatMode === 2) {
+        this.audio.currentTime = 0;
+        this.audio.play();
+      } else {
+        this.nextTrack();
+      }
+    });
+
+    this.initGlobalAudio();
+    this.initRouter();
 
     lucide.createIcons();
   }
@@ -85,6 +93,7 @@ class VanillaApp {
     if (path.includes('apply')) this.navigate('form', './apply.html');
     else if (path.includes('media')) this.navigate('audio', './media.html');
     else if (path.includes('lineup')) this.navigate('lineup', './lineup.html');
+    else if (path.includes('rules')) this.navigate('rules', './rules.html');
     else this.navigate('hub', './hub.html');
   }
 
@@ -106,6 +115,7 @@ class VanillaApp {
        if (tab === 'form') url = './apply.html';
        else if (tab === 'audio') url = './media.html';
        else if (tab === 'lineup') url = './lineup.html';
+       else if (tab === 'rules') url = './rules.html';
        else url = './hub.html';
     }
     
@@ -129,10 +139,12 @@ class VanillaApp {
       
       lucide.createIcons();
 
-      // Stop audio if not on media page
+      // We don't stop the audio when navigating away from media anymore!
+      /*
       if (tab !== 'audio' && this.isPlaying) {
         this.toggleReplay(); 
       }
+      */
 
       // Initialize page specific scripts
       if (tab === 'hub') this.initHub();
@@ -240,21 +252,53 @@ class VanillaApp {
     this.isAuthenticated = false;
     this.applyInterval = setInterval(() => {
       const lockOverlay = document.getElementById('apply-lock-overlay');
+      const rulesModal = document.getElementById('apply-rules-modal');
+      const formContainer = document.getElementById('apply-form-container');
+
       if(!lockOverlay) {
         clearInterval(this.applyInterval);
         return;
       }
+
       const isLocked = new Date().getTime() < this.targetDate;
-      const formContainer = document.getElementById('apply-form-container');
+      const rulesAccepted = sessionStorage.getItem('huevision_rules_accepted') === 'true';
       
       if (isLocked && !this.isAuthenticated) {
         lockOverlay.classList.remove('hidden');
+        if(rulesModal) rulesModal.classList.add('hidden');
         formContainer.className = "glass-panel p-6 md:p-10 opacity-20 pointer-events-none select-none filter blur-sm";
       } else {
         lockOverlay.classList.add('hidden');
-        formContainer.className = "glass-panel p-6 md:p-10";
+        
+        // Show rules if not accepted
+        if (!rulesAccepted && rulesModal) {
+           rulesModal.classList.remove('hidden');
+           rulesModal.classList.add('flex');
+           formContainer.className = "glass-panel p-6 md:p-10 opacity-20 pointer-events-none select-none filter blur-sm";
+        } else {
+           if(rulesModal) {
+             rulesModal.classList.add('hidden');
+             rulesModal.classList.remove('flex');
+           }
+           formContainer.className = "glass-panel p-6 md:p-10";
+        }
       }
     }, 1000);
+
+    const acceptBtn = document.getElementById('accept-rules-btn');
+    if (acceptBtn) {
+      acceptBtn.addEventListener('click', () => {
+         sessionStorage.setItem('huevision_rules_accepted', 'true');
+         // The interval will take care of hiding the modal immediately
+         const rulesModal = document.getElementById('apply-rules-modal');
+         if(rulesModal) {
+            rulesModal.classList.add('hidden');
+            rulesModal.classList.remove('flex');
+         }
+         const formContainer = document.getElementById('apply-form-container');
+         if(formContainer) formContainer.className = "glass-panel p-6 md:p-10";
+      });
+    }
 
     const bypassForm = document.getElementById('bypass-form');
     if (bypassForm) {
@@ -384,35 +428,106 @@ class VanillaApp {
   }
 
 
-  // Audio
+  // --------- AUDIO SYSTEM --------- //
+  initGlobalAudio() {
+    this.renderGlobalTrackInfo();
+    
+    // Global Controls
+    const btnPlayPause = document.getElementById('global-btn-play-pause');
+    const btnPrev = document.getElementById('global-btn-prev');
+    const btnNext = document.getElementById('global-btn-next');
+    const btnRepeat = document.getElementById('global-btn-repeat');
+    const btnMute = document.getElementById('global-btn-mute');
+    const progressContainer = document.getElementById('global-progress-container');
+
+    if (btnPlayPause) btnPlayPause.addEventListener('click', () => this.toggleReplay());
+    if (btnPrev) btnPrev.addEventListener('click', () => this.prevTrack());
+    if (btnNext) btnNext.addEventListener('click', () => this.nextTrack());
+    if (btnRepeat) btnRepeat.addEventListener('click', () => this.toggleRepeat());
+    this.updateRepeatUI();
+    if (btnMute) btnMute.addEventListener('click', () => {
+       this.audio.muted = !this.audio.muted;
+       document.getElementById('global-icon-vol-up').classList.toggle('hidden');
+       document.getElementById('global-icon-vol-mute').classList.toggle('hidden');
+       
+       // Update local volume icons if on media page
+       const localVolUp = document.getElementById('icon-vol-up');
+       const localVolMute = document.getElementById('icon-vol-mute');
+       if (localVolUp && localVolMute) {
+          if (this.audio.muted) {
+            localVolUp.classList.add('hidden');
+            localVolMute.classList.remove('hidden');
+          } else {
+            localVolUp.classList.remove('hidden');
+            localVolMute.classList.add('hidden');
+          }
+       }
+    });
+
+    if (progressContainer) {
+      progressContainer.addEventListener('click', e => {
+        if(!this.duration) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        this.audio.currentTime = pos * this.duration;
+      });
+    }
+
+    // Always show player on init
+    this.showGlobalPlayer();
+  }
+
+  showGlobalPlayer() {
+    const p = document.getElementById('global-player');
+    if (p) p.classList.remove('translate-y-full');
+  }
+
   initAudio() {
     this.renderTrack();
     this.renderPlaylist();
 
-    document.getElementById('btn-play-pause').addEventListener('click', () => this.toggleReplay());
-    document.getElementById('btn-prev').addEventListener('click', () => this.prevTrack());
-    document.getElementById('btn-next').addEventListener('click', () => this.nextTrack());
-    document.getElementById('btn-repeat').addEventListener('click', () => {
-       this.isRepeat = !this.isRepeat;
-       document.getElementById('btn-repeat').classList.toggle('text-red-500');
-       document.getElementById('btn-repeat').classList.toggle('shadow-[0_0_10px_rgba(255,0,0,0.3)]');
-    });
-    document.getElementById('btn-mute').addEventListener('click', () => {
-       this.audio.muted = !this.audio.muted;
-       document.getElementById('icon-vol-up').classList.toggle('hidden');
-       document.getElementById('icon-vol-mute').classList.toggle('hidden');
-    });
+    const localBtnPlayPause = document.getElementById('btn-play-pause');
+    const localBtnPrev = document.getElementById('btn-prev');
+    const localBtnNext = document.getElementById('btn-next');
+    const localBtnRepeat = document.getElementById('btn-repeat');
+    const localBtnMute = document.getElementById('btn-mute');
+    
+    if (localBtnPlayPause) localBtnPlayPause.addEventListener('click', () => this.toggleReplay());
+    if (localBtnPrev) localBtnPrev.addEventListener('click', () => this.prevTrack());
+    if (localBtnNext) localBtnNext.addEventListener('click', () => this.nextTrack());
+    if (localBtnRepeat) localBtnRepeat.addEventListener('click', () => this.toggleRepeat());
+    this.updateRepeatUI();
+    
+    if (localBtnMute) {
+      if (this.audio.muted) {
+        document.getElementById('icon-vol-up').classList.add('hidden');
+        document.getElementById('icon-vol-mute').classList.remove('hidden');
+      }
+      localBtnMute.addEventListener('click', () => {
+         this.audio.muted = !this.audio.muted;
+         document.getElementById('icon-vol-up').classList.toggle('hidden');
+         document.getElementById('icon-vol-mute').classList.toggle('hidden');
+         
+         // sync global
+         const gVolUp = document.getElementById('global-icon-vol-up');
+         const gVolMute = document.getElementById('global-icon-vol-mute');
+         if (gVolUp && gVolMute) {
+           gVolUp.classList.toggle('hidden');
+           gVolMute.classList.toggle('hidden');
+         }
+      });
+    }
     
     document.getElementById('toggle-playlist-btn').addEventListener('click', () => {
        this.showPlaylist = !this.showPlaylist;
        const cl = document.getElementById('playlist-container').classList;
        if (this.showPlaylist) {
           cl.remove('max-h-0', 'opacity-0');
-          cl.add('max-h-96', 'opacity-100');
+          cl.add('max-h-[500px]', 'opacity-100');
           document.getElementById('toggle-playlist-btn').classList.add('text-red-500');
        } else {
           cl.add('max-h-0', 'opacity-0');
-          cl.remove('max-h-96', 'opacity-100');
+          cl.remove('max-h-[500px]', 'opacity-100');
           document.getElementById('toggle-playlist-btn').classList.remove('text-red-500');
        }
     });
@@ -424,15 +539,7 @@ class VanillaApp {
       this.audio.currentTime = pos * this.duration;
     });
 
-    if(this.isPlaying) {
-      document.getElementById('icon-play').classList.add('hidden');
-      document.getElementById('icon-pause').classList.remove('hidden');
-      document.getElementById('audio-play-overlay').classList.add('hidden');
-      document.getElementById('audio-eq-overlay').classList.remove('hidden');
-         
-      // Also scale bg out
-      document.getElementById('audio-cover-bg').style.transform = 'scale(1.05)';
-    }
+    this.updateUIForPlayState();
 
     lucide.createIcons();
   }
@@ -459,9 +566,24 @@ class VanillaApp {
       // update playlist styles
       this.renderPlaylist();
     }
+    
+    this.renderGlobalTrackInfo();
+  }
+  
+  renderGlobalTrackInfo() {
+    const track = TRACKS[this.currentTrackIndex];
+    const gTitle = document.getElementById('global-audio-title');
+    if (gTitle) {
+      gTitle.innerText = track.title;
+      document.getElementById('global-audio-artist').innerText = track.artist + (track.country ? ` — ${track.country}` : '');
+      document.getElementById('global-audio-cover').style.backgroundImage = `url(${track.coverSrc})`;
+    }
   }
 
   updateUIForPlayState() {
+    this.showGlobalPlayer();
+
+    // Local Media Page UI
     const playIcon = document.getElementById('icon-play');
     if(playIcon) {
        if(this.isPlaying) {
@@ -470,7 +592,6 @@ class VanillaApp {
          document.getElementById('audio-play-overlay').classList.add('hidden');
          document.getElementById('audio-eq-overlay').classList.remove('hidden');
          
-         // Also scale bg out
          document.getElementById('audio-cover-bg').style.transform = 'scale(1.05)';
        } else {
          playIcon.classList.remove('hidden');
@@ -480,7 +601,63 @@ class VanillaApp {
          document.getElementById('audio-cover-bg').style.transform = 'scale(1)';
        }
     }
+    
+    // Global UI
+    const gPlayIcon = document.getElementById('global-icon-play');
+    if (gPlayIcon) {
+      if(this.isPlaying) {
+         gPlayIcon.classList.add('hidden');
+         document.getElementById('global-icon-pause').classList.remove('hidden');
+         document.getElementById('global-audio-eq').classList.remove('hidden');
+      } else {
+         gPlayIcon.classList.remove('hidden');
+         document.getElementById('global-icon-pause').classList.add('hidden');
+         document.getElementById('global-audio-eq').classList.add('hidden');
+      }
+    }
+
     this.renderPlaylist(); // to show EQ on playlist
+  }
+
+  toggleRepeat() {
+    this.repeatMode = (this.repeatMode + 1) % 3;
+    this.updateRepeatUI();
+  }
+
+  updateRepeatUI() {
+    const isRepeat = this.repeatMode > 0;
+    const isRepeat1 = this.repeatMode === 2;
+
+    const ids = ['btn-repeat', 'global-btn-repeat'];
+    ids.forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        if (isRepeat) {
+          btn.classList.add('text-red-500', 'shadow-[0_0_10px_rgba(255,0,0,0.3)]');
+        } else {
+          btn.classList.remove('text-red-500', 'shadow-[0_0_10px_rgba(255,0,0,0.3)]');
+        }
+      }
+    });
+
+    const repIds = [
+      { rep: 'icon-repeat', rep1: 'icon-repeat-1' },
+      { rep: 'global-icon-repeat', rep1: 'global-icon-repeat-1' }
+    ];
+
+    repIds.forEach(({rep, rep1}) => {
+      const elRep = document.getElementById(rep);
+      const elRep1 = document.getElementById(rep1);
+      if (elRep && elRep1) {
+        if (isRepeat1) {
+          elRep.classList.add('hidden');
+          elRep1.classList.remove('hidden');
+        } else {
+          elRep.classList.remove('hidden');
+          elRep1.classList.add('hidden');
+        }
+      }
+    });
   }
 
   toggleReplay() {
@@ -511,7 +688,7 @@ class VanillaApp {
   nextTrack() {
     if (this.currentTrackIndex < TRACKS.length - 1) {
       this.currentTrackIndex++;
-    } else if (this.isRepeat) {
+    } else if (this.repeatMode === 1) {
       this.currentTrackIndex = 0;
     } else {
       this.isPlaying = false;
@@ -536,12 +713,24 @@ class VanillaApp {
   }
 
   updateAudioProgress() {
+    const p = (this.audio.currentTime / this.audio.duration) * 100 || 0;
+    const fCur = this.formatTime(this.audio.currentTime);
+    const fTot = this.formatTime(this.duration);
+
+    // Local Media Page UI
     const pb = document.getElementById('progress-bar');
     if(pb) {
-       const p = (this.audio.currentTime / this.audio.duration) * 100 || 0;
        pb.style.width = p + '%';
-       document.getElementById('audio-current-time').innerText = this.formatTime(this.audio.currentTime);
-       document.getElementById('audio-duration').innerText = this.formatTime(this.duration);
+       document.getElementById('audio-current-time').innerText = fCur;
+       document.getElementById('audio-duration').innerText = fTot;
+    }
+
+    // Global UI
+    const gPb = document.getElementById('global-progress-bar');
+    if (gPb) {
+      gPb.style.width = p + '%';
+      document.getElementById('global-audio-current-time').innerText = fCur;
+      document.getElementById('global-audio-duration').innerText = fTot;
     }
   }
 

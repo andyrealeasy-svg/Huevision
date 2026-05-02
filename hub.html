@@ -19,16 +19,26 @@
   </div>
 
   <div class="mt-20 w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 fade-in-up delay-500">
-    <button onclick="window.app.navigate('form')" class="group relative p-8 glass-panel border border-[rgba(255,255,255,0.05)] hover:border-red-500/50 transition-all text-left overflow-hidden flex flex-col justify-between" style="min-height: 180px">
-      <div class="absolute inset-0 bg-red-500/0 group-hover:bg-red-500/10 transition-colors"></div>
-      <div class="relative z-10">
-         <h3 class="text-2xl font-display font-bold text-white group-hover:text-red-500 transition-colors">Подать заявку</h3>
-         <p class="text-white/40 mt-2">Отправь свой трек. Стань участником или жюри.</p>
-      </div>
-      <i data-lucide="arrow-right" class="text-white/20 group-hover:text-red-500 transition-colors ml-auto relative z-10 w-8 h-8"></i>
-    </button>
+    <div class="flex flex-col gap-4">
+      <button onclick="window.app.navigate('form')" class="group relative w-full h-full p-8 glass-panel border border-[rgba(255,255,255,0.05)] hover:border-red-500/50 transition-all text-left overflow-hidden flex flex-col justify-between" style="min-height: 180px">
+        <div class="absolute inset-0 bg-red-500/0 group-hover:bg-red-500/10 transition-colors"></div>
+        <div class="relative z-10">
+           <h3 class="text-2xl font-display font-bold text-white group-hover:text-red-500 transition-colors">Подать заявку</h3>
+           <p class="text-white/40 mt-2">Отправь свой трек. Стань участником или жюри.</p>
+        </div>
+        <i data-lucide="arrow-right" class="text-white/20 group-hover:text-red-500 transition-colors ml-auto relative z-10 w-8 h-8"></i>
+      </button>
 
-    <a href="https://t.me/HueVisionOfficial" target="_blank" rel="noopener noreferrer" class="group relative p-8 glass-panel border border-[rgba(255,255,255,0.05)] hover:border-blue-500/50 transition-all text-left overflow-hidden flex flex-col justify-between" style="min-height: 180px">
+      <button onclick="window.app.navigate('rules')" class="w-full relative px-6 py-4 glass-panel border border-[rgba(255,255,255,0.05)] hover:border-white/20 transition-all text-left flex items-center justify-between group">
+        <div class="flex items-center gap-3">
+          <i data-lucide="scroll-text" class="text-white/50 group-hover:text-white transition-colors w-5 h-5"></i>
+          <span class="text-sm font-display font-bold text-white/70 group-hover:text-white uppercase tracking-widest transition-colors">Правила участия</span>
+        </div>
+        <i data-lucide="chevron-right" class="text-white/20 group-hover:text-white w-4 h-4 transition-colors"></i>
+      </button>
+    </div>
+
+    <a href="https://t.me/HueVisionOfficial" target="_blank" rel="noopener noreferrer" class="group relative h-full w-full p-8 glass-panel border border-[rgba(255,255,255,0.05)] hover:border-blue-500/50 transition-all text-left overflow-hidden flex flex-col justify-between" style="min-height: 180px">
        <div class="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/10 transition-colors"></div>
        <div class="relative z-10">
          <div class="flex items-center gap-3 mb-2">

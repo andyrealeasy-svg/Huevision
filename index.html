@@ -25,16 +25,18 @@
   <link rel="stylesheet" href="./styles.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="min-h-screen bg-black text-white font-sans selection:bg-red-500/30 selection:text-red-500 flex flex-col">
+<body class="min-h-screen text-white font-sans selection:bg-red-500/30 selection:text-red-500 flex flex-col bg-transparent">
   <!-- Background -->
-  <div class="fixed inset-0 pointer-events-none z-[0] opacity-20" 
-       style="background-image: radial-gradient(circle at 50% 0%, #FF0000 0%, transparent 40%); filter: blur(100px);">
+  <div class="plasma-bg">
+    <div class="plasma-line plasma-line-1"></div>
+    <div class="plasma-line plasma-line-2"></div>
+    <div class="plasma-line plasma-line-3"></div>
   </div>
 
   <nav class="fixed top-0 left-0 w-full z-50 glass-panel border-b-0 border-white/5 py-4">
-    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 flex items-center justify-between w-full">
       <div 
-        class="text-red-500 font-display font-black text-xl tracking-widest uppercase cursor-pointer"
+        class="text-red-500 font-display font-black text-xl tracking-widest uppercase cursor-pointer shrink-0"
         onclick="window.app.navigate('hub', './hub.html')"
       >
         HUEVISION<span class="text-white ml-1 text-sm glow">26</span>
@@ -59,41 +61,110 @@
             МЕДИАЦЕНТР
           </span>
         </a>
-        <a href="./apply.html" data-tab="form" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white">
+        <a href="./apply.html" data-tab="form" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white shrink-0">
           <span class="relative z-10 flex items-center gap-2">
             <i data-lucide="file-text" class="w-4 h-4"></i>
             ЗАЯВКА
           </span>
         </a>
+        <a href="./rules.html" data-tab="rules" class="relative px-6 py-2 text-sm font-display font-medium uppercase tracking-wider transition-all duration-300 text-white/60 hover:text-white shrink-0">
+          <span class="relative z-10 flex items-center gap-2">
+            <i data-lucide="scroll-text" class="w-4 h-4"></i>
+            ПРАВИЛА
+          </span>
+        </a>
       </div>
 
-      <div class="flex md:hidden items-center space-x-2 nav-links">
-        <a href="./hub.html" data-tab="hub" class="p-3 text-red-500">
+      <div class="flex md:hidden items-center space-x-2 nav-links overflow-x-auto overflow-y-hidden whitespace-nowrap hide-scrollbar ml-auto min-w-0" style="-webkit-overflow-scrolling: touch;">
+        <a href="./hub.html" data-tab="hub" class="p-3 text-red-500 shrink-0">
           <i data-lucide="skull" class="w-5 h-5"></i>
         </a>
-        <a href="./lineup.html" data-tab="lineup" class="p-3 text-white/60 hover:text-white">
+        <a href="./lineup.html" data-tab="lineup" class="p-3 text-white/60 hover:text-white shrink-0">
           <i data-lucide="users" class="w-5 h-5"></i>
         </a>
-        <a href="./media.html" data-tab="audio" class="p-3 text-white/60 hover:text-white">
+        <a href="./media.html" data-tab="audio" class="p-3 text-white/60 hover:text-white shrink-0">
           <i data-lucide="play" class="w-5 h-5"></i>
         </a>
-        <a href="./apply.html" data-tab="form" class="p-3 text-white/60 hover:text-white">
+        <a href="./apply.html" data-tab="form" class="p-3 text-white/60 hover:text-white shrink-0">
           <i data-lucide="file-text" class="w-5 h-5"></i>
+        </a>
+        <a href="./rules.html" data-tab="rules" class="p-3 text-white/60 hover:text-white shrink-0">
+          <i data-lucide="scroll-text" class="w-5 h-5"></i>
         </a>
       </div>
     </div>
   </nav>
 
-  <main id="main-content" class="pt-24 pb-20 flex-1"></main>
+  <main id="main-content" class="pt-24 pb-32 flex-1"></main>
 
-  <footer class="border-t border-white/10 bg-black py-8 text-center mt-auto">
+  <footer class="border-t border-white/10 bg-black py-8 text-center mt-auto pb-32">
     <div class="flex flex-col items-center gap-4">
       <div class="text-xl font-display font-black tracking-widest text-white/20">
         HUEVISION
       </div>
-      <p class="text-white/30 text-xs font-mono">© 2026 ВСЕ ПРАВА ЗАЩИЩЕНЫ.</p>
+      <div class="flex flex-col items-center gap-1">
+        <p class="text-white/30 text-xs font-mono">© 2026 ВСЕ ПРАВА ЗАЩИЩЕНЫ.</p>
+        <p class="text-white/20 text-[10px] font-mono">v1.1.0</p>
+      </div>
     </div>
   </footer>
+
+  <!-- Global Player -->
+  <div id="global-player" class="fixed bottom-0 left-0 w-full z-50 glass-panel border-t border-red-500/20 bg-black/80 backdrop-blur-xl transform translate-y-full transition-transform duration-300">
+    <!-- Progress Bar -->
+    <div id="global-progress-container" class="absolute top-0 left-0 w-full h-1 bg-white/10 overflow-hidden cursor-pointer group">
+      <div id="global-progress-bar" class="h-full bg-red-500 transition-all duration-100 ease-linear shadow-[0_0_10px_rgba(255,0,0,0.8)]" style="width: 0%"></div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-4">
+      <!-- Info -->
+      <div class="flex items-center gap-4 flex-1 min-w-0">
+        <div class="w-12 h-12 shrink-0 bg-white/5 relative overflow-hidden rounded group">
+          <div id="global-audio-cover" class="absolute inset-0 bg-cover bg-center"></div>
+          <div class="absolute inset-0 bg-black/40 mix-blend-overlay"></div>
+          <div id="global-audio-eq" class="absolute inset-0 flex items-center justify-center gap-[2px] bg-black/40 hidden">
+             <div class="w-1 bg-red-500 rounded-full h-2 eq-bar-sm" style="animation-delay: 0s"></div>
+             <div class="w-1 bg-red-500 rounded-full h-3 eq-bar-sm" style="animation-delay: 0.15s"></div>
+             <div class="w-1 bg-red-500 rounded-full h-1.5 eq-bar-sm" style="animation-delay: 0.3s"></div>
+             <div class="w-1 bg-red-500 rounded-full h-4 eq-bar-sm" style="animation-delay: 0.45s"></div>
+          </div>
+        </div>
+        <div class="flex flex-col min-w-0">
+          <span id="global-audio-title" class="text-sm font-display font-medium text-white truncate text-glow"></span>
+          <span id="global-audio-artist" class="text-xs text-white/50 font-mono truncate"></span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center justify-center gap-4 md:gap-6 flex-shrink-0">
+        <button id="global-btn-prev" class="text-white/40 hover:text-white transition-colors">
+          <i data-lucide="skip-back" class="w-5 h-5"></i>
+        </button>
+        <button id="global-btn-play-pause" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-red-500 hover:text-white hover:shadow-[0_0_15px_rgba(255,0,0,0.6)] transition-all transform hover:scale-105">
+          <i data-lucide="play" class="ml-0.5 w-5 h-5 fill-current" id="global-icon-play"></i>
+          <i data-lucide="pause" class="w-5 h-5 fill-current hidden" id="global-icon-pause"></i>
+        </button>
+        <button id="global-btn-next" class="text-white/40 hover:text-white transition-colors">
+          <i data-lucide="skip-forward" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Extra Controls -->
+      <div class="hidden md:flex items-center justify-end gap-4 flex-1">
+        <span class="text-[10px] text-white/40 font-mono w-24 text-right">
+          <span id="global-audio-current-time">00:00</span> / <span id="global-audio-duration">00:00</span>
+        </span>
+        <button id="global-btn-repeat" class="transition-colors text-white/40 hover:text-white" title="Повтор">
+          <i data-lucide="repeat" class="w-4 h-4" id="global-icon-repeat"></i>
+          <i data-lucide="repeat-1" class="w-4 h-4 hidden" id="global-icon-repeat-1"></i>
+        </button>
+        <button id="global-btn-mute" class="transition-colors text-white/40 hover:text-white relative group">
+          <i data-lucide="volume-2" class="w-4 h-4" id="global-icon-vol-up"></i>
+          <i data-lucide="volume-x" class="w-4 h-4 hidden text-red-500" id="global-icon-vol-mute"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./app.js"></script>
 </body>

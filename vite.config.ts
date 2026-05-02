@@ -19,6 +19,7 @@ export default defineConfig(({mode}) => {
           apply: path.resolve(__dirname, 'apply.html'),
           media: path.resolve(__dirname, 'media.html'),
           lineup: path.resolve(__dirname, 'lineup.html'),
+          rules: path.resolve(__dirname, 'rules.html'),
         }
       }
     },
