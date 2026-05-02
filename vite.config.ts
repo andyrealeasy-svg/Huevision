@@ -14,12 +14,7 @@ export default defineConfig(({mode}) => {
     build: {
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, 'index.html'),
-          hub: path.resolve(__dirname, 'hub.html'),
-          apply: path.resolve(__dirname, 'apply.html'),
-          media: path.resolve(__dirname, 'media.html'),
-          lineup: path.resolve(__dirname, 'lineup.html'),
-          rules: path.resolve(__dirname, 'rules.html'),
+          main: path.resolve(__dirname, 'index.html')
         }
       }
     },
