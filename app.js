@@ -53,6 +53,7 @@ class VanillaApp {
   constructor() {
     this.audio = new Audio();
     this.currentTrackIndex = 0;
+    this.audio.src = TRACKS[this.currentTrackIndex].audioSrc;
     this.isPlaying = false;
     this.repeatMode = 0;
     this.showPlaylist = false;
@@ -66,7 +67,12 @@ class VanillaApp {
     this.audio.addEventListener('ended', () => {
       if (this.repeatMode === 2) {
         this.audio.currentTime = 0;
-        this.audio.play();
+        const playPromise = this.audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            if (e.name !== 'AbortError') console.error(e);
+          });
+        }
       } else {
         this.nextTrack();
       }
@@ -551,7 +557,9 @@ class VanillaApp {
        if(this.isPlaying) {
          const playPromise = this.audio.play();
          if (playPromise !== undefined) {
-           playPromise.catch(e => console.error(e));
+           playPromise.catch(e => {
+             if (e.name !== 'AbortError') console.error(e);
+           });
          }
        }
     }
@@ -664,14 +672,23 @@ class VanillaApp {
     if (this.isPlaying) {
       this.audio.pause();
       this.isPlaying = false;
+      this.updateUIForPlayState();
     } else {
       const playPromise = this.audio.play();
       if (playPromise !== undefined) {
-        playPromise.catch(e => console.error(e));
+        playPromise.then(() => {
+          this.isPlaying = true;
+          this.updateUIForPlayState();
+        }).catch(e => {
+          if (e.name !== 'AbortError') console.error(e);
+          this.isPlaying = false;
+          this.updateUIForPlayState();
+        });
+      } else {
+        this.isPlaying = true;
+        this.updateUIForPlayState();
       }
-      this.isPlaying = true;
     }
-    this.updateUIForPlayState();
   }
 
   playTrack(index) {
