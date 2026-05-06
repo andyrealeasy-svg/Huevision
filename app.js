@@ -1,5 +1,14 @@
 const TRACKS = [
   {
+    id: 'track-0',
+    artist: 'meedy',
+    title: 'I Know',
+    year: 'САУНДТРЕК',
+    country: '',
+    audioSrc: 'https://qnozyhiylwmhcmkrvsul.supabase.co/storage/v1/object/sign/Huevision%20mp3/HUEVISION%20DARK%20demo.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV84NTJjZjAzNy1jZjIzLTRlNDctYTdkYy04MWVhM2EwZWRhZWEiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJIdWV2aXNpb24gbXAzL0hVRVZJU0lPTiBEQVJLIGRlbW8ubXAzIiwiaWF0IjoxNzc4MDgzODkxLCJleHAiOjIwOTM0NDM4OTF9.azHnrDQeijIHEzu9EzRDP17lyDMubAj5ZBflFtVbS18',
+    coverSrc: 'https://i.postimg.cc/K8BxbDLm/IMG-20260506-190850.png'
+  },
+  {
     id: 'track-1',
     artist: 'SiCka',
     title: 'Let Me',
@@ -38,15 +47,28 @@ const TRACKS = [
 ];
 
 const LINEUP_DATA = {
-  participant: [
-    { name: 'SiCka', country: 'Revostan' },
-    { name: 'NIK$A', country: 'Russia' },
-    { name: 'Ksivat', country: 'Genshinland' },
-    { name: 'Dollova', country: 'Kaliningrad' }
-  ],
-  jury: [
-    { name: 'Pinky Pie', role: 'jury' }
-  ]
+  2026: {
+    participant: [],
+    jury: [
+      {
+        name: 'Gemini',
+        role: 'jury',
+        photo: 'https://i.postimg.cc/gJDBHnZ7/Novyj-proekt-15-CC82DA1.png',
+        bio: 'Я — Gemini, созданный в Google быстрый и остроумный ИИ-помощник, который умеет работать с текстом, кодом, изображениями и видео для решения твоих задач. Благодаря своим умениям работы с видео, оценю каждый номер максимально справедливо.'
+      }
+    ]
+  },
+  2025: {
+    participant: [
+      { name: 'SiCka', country: 'Revostan' },
+      { name: 'NIK$A', country: 'Russia' },
+      { name: 'Ksivat', country: 'Genshinland' },
+      { name: 'Dollova', country: 'Kaliningrad' }
+    ],
+    jury: [
+      { name: 'Pinky Pie', role: 'jury' }
+    ]
+  }
 };
 
 class VanillaApp {
@@ -223,34 +245,162 @@ class VanillaApp {
     this.renderLineup();
   }
   
+  closeLineupModal() {
+    const modal = document.getElementById('participant-modal');
+    if(!modal) return;
+    const modalContent = document.getElementById('participant-modal-content');
+    modal.classList.add('opacity-0');
+    if(modalContent) modalContent.classList.add('scale-95');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 300);
+  }
+
+  showLineupModal(name, filter) {
+    let data = null;
+    let dataYear = null;
+    for (const year of Object.keys(LINEUP_DATA).sort((a,b) => b - a)) {
+      data = LINEUP_DATA[year][filter].find(i => i.name === name);
+      if (data) {
+        dataYear = year;
+        break;
+      }
+    }
+    if (!data) return;
+    
+    let trackHtml = '';
+    if (filter === 'participant') {
+       const trackIndex = TRACKS.findIndex(t => t.artist === data.name);
+       if (trackIndex !== -1) {
+          const track = TRACKS[trackIndex];
+          trackHtml = `
+            <div class="mt-8 p-4 glass-panel border border-white/10 hover:border-red-500/50 flex items-center justify-between group rounded-xl hover:bg-white/5 transition-all cursor-pointer box-glow" onclick="window.app.closeLineupModal(); window.app.navigate('audio', './media.html').then(() => window.app.playTrack(${trackIndex}))">
+               <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-cover bg-center rounded shrink-0 shadow-lg" style="background-image: url(${track.coverSrc})"></div>
+                  <div class="flex flex-col text-left">
+                     <span class="text-sm font-display font-medium text-white group-hover:text-red-500 transition-colors">${track.title}</span>
+                     <span class="text-xs text-white/50 font-mono mt-0.5">Конкурсный трек</span>
+                  </div>
+               </div>
+               <div class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white/40 group-hover:text-white group-hover:bg-red-500 group-hover:border-red-500 transition-all shrink-0">
+                  <i data-lucide="play" class="w-4 h-4 ml-0.5 fill-current"></i>
+               </div>
+            </div>
+          `;
+       }
+    }
+    
+    const photoContent = data.photo 
+        ? `<img src="${data.photo}" alt="${data.name}" class="w-full h-full object-cover">`
+        : `<i data-lucide="user" class="w-16 h-16 text-white/20"></i>`;
+    
+    let roleOrCountry = '';
+    if (data.country) {
+       roleOrCountry = `<span class="bg-red-500/20 text-red-500 border border-red-500/30 px-3 py-1.5 text-xs font-mono tracking-widest uppercase rounded flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3"></i>${data.country}</span>`;
+    } else if (data.role === 'jury') {
+       roleOrCountry = `<span class="bg-blue-500/20 text-blue-500 border border-blue-500/30 px-3 py-1.5 text-xs font-mono tracking-widest uppercase rounded flex items-center gap-2"><i data-lucide="gavel" class="w-3 h-3"></i>ЖЮРИ</span>`;
+    }
+
+    const modalContent = document.getElementById('participant-modal-content');
+    modalContent.innerHTML = `
+      <button onclick="window.app.closeLineupModal()" class="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center text-white/50 hover:text-white transition-all bg-black/50 border border-white/10 rounded-full hover:bg-red-500 hover:border-red-500">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+      <div class="h-48 w-full bg-white/5 flex items-center justify-center border-b border-white/10 shrink-0 relative overflow-hidden">
+        ${data.photo ? `<div class="absolute inset-0 bg-cover bg-center" style="background-image: url(${data.photo}); filter: blur(20px); opacity: 0.3;"></div>` : ''}
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+        <div class="w-32 h-32 rounded border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden z-10 shadow-2xl relative translate-y-8">
+           ${photoContent}
+        </div>
+      </div>
+      <div class="p-6 md:p-8 flex flex-col flex-1 overflow-y-auto max-h-[60vh] hide-scrollbar mt-6">
+         <div class="flex items-center justify-between mb-4">
+            <h2 class="text-3xl font-display font-black tracking-wider text-white uppercase">${data.name}</h2>
+         </div>
+         <div class="mb-6 flex">
+            ${roleOrCountry}
+         </div>
+         <div class="flex-1 w-full text-white/60 text-sm font-sans leading-relaxed text-left">
+            ${data.bio || 'Краткая биография пока отсутствует. Информация будет обновлена позже.'}
+         </div>
+         ${trackHtml}
+      </div>
+    `;
+    lucide.createIcons();
+    
+    const modal = document.getElementById('participant-modal');
+    modal.classList.remove('hidden');
+    modal.onclick = (e) => {
+       if (e.target === modal) {
+          window.app.closeLineupModal();
+       }
+    };
+    
+    // allow layout
+    setTimeout(() => {
+       modal.classList.remove('opacity-0');
+       modalContent.classList.remove('scale-95');
+    }, 10);
+  }
+
   renderLineup() {
-    const container = document.getElementById('lineup-grid-container');
+    const container = document.getElementById('lineup-years-container');
     if (!container) return;
     
-    const data = LINEUP_DATA[this.currentLineupFilter] || [];
+    let html = '';
+    const years = Object.keys(LINEUP_DATA).sort((a,b) => b - a);
     
-    if (data.length === 0) {
-      container.innerHTML = `
-        <div id="lineup-empty" class="col-span-full w-full h-64 glass-panel border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-6 fade-in">
-          <i data-lucide="shield-alert" class="text-red-500/50 mb-4 w-12 h-12"></i>
-          <h3 class="font-display font-bold text-2xl text-white/80">НЕТ ДАННЫХ</h3>
-          <p class="text-white/40 mt-2 max-w-md">Список пока пуст. Информация появится после окончания приема заявок и отбора.</p>
+    years.forEach(year => {
+      const data = LINEUP_DATA[year][this.currentLineupFilter] || [];
+      const heading = `
+        <div class="flex items-center justify-between mb-8">
+          <h3 class="text-3xl font-display font-bold text-white">${year}</h3>
         </div>
       `;
-    } else {
-      container.innerHTML = data.map(item => `
-        <div class="glass-panel p-6 border-red-500/20 box-glow flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105 fade-in">
-          <div class="w-32 h-32 rounded-full bg-white/5 border border-white/10 mb-6 flex items-center justify-center overflow-hidden">
-            <i data-lucide="user" class="w-12 h-12 text-white/20"></i>
+      if (data.length === 0) {
+        html += `
+        <div class="mb-12">
+          ${heading}
+          <div class="w-full h-32 glass-panel border border-dashed border-white/10 flex flex-col items-center justify-center text-center p-6 fade-in">
+            <i data-lucide="shield-alert" class="text-red-500/50 mb-2 w-8 h-8"></i>
+            <h3 class="font-display font-bold text-xl text-white/80">НЕТ ДАННЫХ</h3>
+            <p class="text-white/40 mt-1 text-sm max-w-md">Список ${year} года пуст. Информация появится после окончания приема заявок и отбора.</p>
           </div>
-          <h3 class="text-xl md:text-2xl font-display font-bold text-white mb-2 whitespace-nowrap overflow-hidden text-clip w-full">
-            ${item.name}
-          </h3>
-          ${item.country ? `<div class="mt-auto pt-4 border-t border-white/10 w-full"><p class="text-xs font-mono tracking-widest text-red-500 uppercase">${item.country}</p></div>` : ''}
-          ${item.role === 'jury' ? `<div class="mt-auto pt-4 border-t border-white/10 w-full"><p class="text-xs font-mono tracking-widest text-red-500 uppercase">ЖЮРИ</p></div>` : ''}
         </div>
-      `).join('');
-    }
+        `;
+      } else {
+        const gridHtml = data.map(item => {
+          const trackIndex = TRACKS.findIndex(t => t.artist === item.name);
+          const hasTrack = trackIndex !== -1;
+          return `
+          <div class="glass-panel p-6 border-red-500/20 box-glow flex flex-col items-center text-center transform transition-all duration-300 hover:scale-[1.02] active:scale-95 active:bg-red-500/10 active:border-red-500/50 active:shadow-[0_0_30px_rgba(255,0,0,0.4)] fade-in relative group cursor-pointer" ondblclick="window.app.showLineupModal('${item.name}', '${this.currentLineupFilter}')">
+            ${hasTrack ? `
+            <button onclick="window.app.navigate('audio', './media.html').then(() => window.app.playTrack(${trackIndex})); event.stopPropagation();" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center border border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-[0_0_15px_rgba(255,0,0,0.3)] opacity-100 z-10">
+              <i data-lucide="music" class="w-4 h-4"></i>
+            </button>
+            ` : ''}
+            <div class="w-32 h-32 rounded-full bg-white/5 border border-white/10 mb-6 flex items-center justify-center overflow-hidden shrink-0">
+              ${item.photo ? `<img src="${item.photo}" alt="${item.name}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-12 h-12 text-white/20"></i>`}
+            </div>
+            <h3 class="text-xl md:text-2xl font-display font-bold text-white mb-2 whitespace-nowrap overflow-hidden text-clip w-full">
+              ${item.name}
+            </h3>
+            ${item.country ? `<div class="mt-auto pt-4 border-t border-white/10 w-full"><p class="text-xs font-mono tracking-widest text-red-500 uppercase">${item.country}</p></div>` : ''}
+            ${item.role === 'jury' ? `<div class="mt-auto pt-4 border-t border-white/10 w-full"><p class="text-xs font-mono tracking-widest text-red-500 uppercase">ЖЮРИ</p></div>` : ''}
+          </div>
+        `}).join('');
+        html += `
+        <div class="mb-12">
+          ${heading}
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            ${gridHtml}
+          </div>
+        </div>
+        `;
+      }
+    });
+
+    container.innerHTML = html;
     lucide.createIcons();
   }
 
@@ -568,7 +718,7 @@ class VanillaApp {
     if(tEl) {
       tEl.innerText = track.title;
       document.getElementById('audio-artist').innerText = track.artist + (track.country ? ` — ${track.country}` : '');
-      document.getElementById('audio-year').innerText = track.year + ' // ENTRY';
+      document.getElementById('audio-year').innerText = track.year === 'САУНДТРЕК' ? 'САУНДТРЕК' : track.year + ' // ENTRY';
       document.getElementById('audio-cover-bg').style.backgroundImage = `url(${track.coverSrc})`;
 
       // update playlist styles
@@ -764,7 +914,12 @@ class VanillaApp {
     if(!list) return;
     
     if (filters) {
-      const years = Array.from(new Set(TRACKS.map(t => t.year))).sort((a,b) => Number(b) - Number(a));
+      const years = Array.from(new Set(TRACKS.map(t => t.year))).sort((a,b) => {
+        if (isNaN(Number(a)) && isNaN(Number(b))) return b.localeCompare(a);
+        if (isNaN(Number(a))) return -1;
+        if (isNaN(Number(b))) return 1;
+        return Number(b) - Number(a);
+      });
       let filterHtml = `
         <button
           onclick="window.app.setAudioFilterYear('ALL')"
