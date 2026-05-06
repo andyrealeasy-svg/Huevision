@@ -104,7 +104,12 @@
       </div>
       <div class="flex flex-col items-center gap-1">
         <p class="text-white/30 text-xs font-mono">© 2026 ВСЕ ПРАВА ЗАЩИЩЕНЫ.</p>
-        <p class="text-white/20 text-[10px] font-mono">v1.2.0</p>
+        <div class="flex items-center gap-2">
+          <p class="text-white/20 text-[10px] font-mono">v1.2.1</p>
+          <button onclick="window.app.showUpdateModal()" class="text-white/20 hover:text-white/50 transition-colors" title="Что нового?">
+            <i data-lucide="info" class="w-3 h-3"></i>
+          </button>
+        </div>
       </div>
     </div>
   </footer>
@@ -113,6 +118,45 @@
   <div id="participant-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
     <div class="glass-panel w-full max-w-lg border border-red-500/20 shadow-[0_0_30px_rgba(255,0,0,0.15)] relative overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col" id="participant-modal-content">
       <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Update Modal -->
+  <div id="update-modal" class="fixed inset-0 z-[110] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
+    <div class="glass-panel w-full max-w-lg border border-red-500/20 shadow-[0_0_30px_rgba(255,0,0,0.15)] relative overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col" id="update-modal-content">
+      <button onclick="window.app.closeUpdateModal()" class="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center text-white/50 hover:text-white transition-all bg-black/50 border border-white/10 rounded-full hover:bg-red-500 hover:border-red-500">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+      <div class="w-full h-48 bg-cover bg-center shrink-0 border-b border-white/10" style="background-image: url('https://i.postimg.cc/rwnJMs0G/file-00000000081471f891ac85f70b534f02.png')"></div>
+      <div class="p-6 md:p-8 flex flex-col flex-1 overflow-y-auto max-h-[60vh] hide-scrollbar">
+        <h2 class="text-3xl font-display font-black tracking-wider text-white uppercase mb-6 flex items-center gap-3">
+          <i data-lucide="sparkles" class="w-6 h-6 text-red-500"></i>
+          ЧТО НОВОГО
+        </h2>
+        
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-xl font-bold font-display text-white mb-3">v1.2.1</h3>
+            <ul class="text-white/60 space-y-2 font-sans text-sm leading-relaxed">
+              <li class="flex items-start gap-2"><span class="text-red-500 mt-1">•</span> Окно со списком изменений при заходе в приложение и по кнопке в подвале</li>
+              <li class="flex items-start gap-2"><span class="text-red-500 mt-1">•</span> Новое правило на странице правил подачи заявок</li>
+            </ul>
+          </div>
+          <div class="w-full h-px bg-white/10"></div>
+          <div>
+            <h3 class="text-xl font-bold font-display text-white mb-3">v1.2.0</h3>
+            <ul class="text-white/60 space-y-2 font-sans text-sm leading-relaxed">
+              <li class="flex items-start gap-2"><span class="text-red-500 mt-1">•</span> Карточка: При двойном нажатии на карточку участника / жюри в лайнапе открывается более подробная информация о нем</li>
+              <li class="flex items-start gap-2"><span class="text-red-500 mt-1">•</span> Карточка 0.5: На карточке участника в лайнапе есть кнопка, которая переносит пользователя в медиа центр и включает трек этого участника</li>
+              <li class="flex items-start gap-2"><span class="text-red-500 mt-1">•</span> Саундтрек: meedy — «I Know»</li>
+            </ul>
+          </div>
+        </div>
+
+        <button onclick="window.app.closeUpdateModal()" class="w-full py-4 mt-8 bg-red-500/10 text-red-500 border border-red-500/50 hover:bg-red-500 hover:text-white transition-all font-display font-bold tracking-widest uppercase rounded">
+          Понятно
+        </button>
+      </div>
     </div>
   </div>
 

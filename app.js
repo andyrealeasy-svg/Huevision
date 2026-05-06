@@ -104,6 +104,7 @@ class VanillaApp {
     this.initRouter();
 
     lucide.createIcons();
+    this.checkUpdateModal();
   }
 
   initRouter() {
@@ -238,6 +239,40 @@ class VanillaApp {
       }
     });
     this.renderLineup();
+  }
+
+  checkUpdateModal() {
+    const version = 'v1.2.1';
+    const lastSeen = localStorage.getItem('last_seen_version');
+    if (lastSeen !== version) {
+      setTimeout(() => {
+        this.showUpdateModal();
+        localStorage.setItem('last_seen_version', version);
+      }, 500); // Wait a bit for app to load properly
+    }
+  }
+
+  showUpdateModal() {
+    const modal = document.getElementById('update-modal');
+    const modalContent = document.getElementById('update-modal-content');
+    if (modal && modalContent) {
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        modalContent.classList.remove('scale-95');
+      }, 10);
+    }
+  }
+
+  closeUpdateModal() {
+    const modal = document.getElementById('update-modal');
+    if(!modal) return;
+    const modalContent = document.getElementById('update-modal-content');
+    modal.classList.add('opacity-0');
+    if(modalContent) modalContent.classList.add('scale-95');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 300);
   }
 
   initLineup() {
