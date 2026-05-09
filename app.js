@@ -198,7 +198,18 @@ class VanillaApp {
 
       if (distance < 0) {
         clearInterval(this.timerInterval);
-        el.innerHTML = '';
+        const parent = el.parentElement;
+        if (parent) {
+          parent.innerHTML = `
+            <div class="text-2xl md:text-4xl font-display font-black tracking-widest text-white uppercase text-center animate-pulse text-glow drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] border border-white/20 bg-white/5 px-8 py-6 rounded-xl relative overflow-hidden flex items-center justify-center gap-4">
+              <i data-lucide="unlock" class="text-red-500 w-8 h-8"></i>
+              ПРИЕМ ЗАЯВОК ОТКРЫТ!
+            </div>
+          `;
+          lucide.createIcons();
+        } else {
+          el.innerHTML = '';
+        }
         return;
       }
 
@@ -242,7 +253,7 @@ class VanillaApp {
   }
 
   checkUpdateModal() {
-    const version = 'v1.2.1';
+    const version = 'v1.2.2';
     const lastSeen = localStorage.getItem('last_seen_version');
     if (lastSeen !== version) {
       setTimeout(() => {
@@ -439,6 +450,68 @@ class VanillaApp {
     lucide.createIcons();
   }
 
+  cancelApplication() {
+    const modal = document.getElementById('cancel-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+      }, 10);
+    }
+  }
+
+  closeCancelModal() {
+    const modal = document.getElementById('cancel-modal');
+    if (modal) {
+      modal.classList.add('opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+  }
+
+  confirmCancelApplication() {
+    this.closeCancelModal();
+    localStorage.removeItem('huevision_application');
+    this.isEditing = false;
+    const form = document.getElementById('main-apply-form');
+    if (form) form.reset();
+    
+    const successContainer = document.getElementById('apply-success-container');
+    if (successContainer) successContainer.classList.add('hidden');
+    
+    const formContainer = document.getElementById('apply-form-container');
+    if (formContainer) {
+      formContainer.classList.remove('hidden');
+      formContainer.className = "glass-panel p-6 md:p-10";
+    }
+  }
+
+  editApplication() {
+    this.isEditing = true;
+    const savedDataStr = localStorage.getItem('huevision_application');
+    if (savedDataStr) {
+      try {
+        const data = JSON.parse(savedDataStr);
+        const form = document.getElementById('main-apply-form');
+        if (form) {
+          this.setApplyRole(data.role.toLowerCase());
+          if (data.nickname) form.Nickname.value = data.nickname;
+          if (data.country && form.Country) form.Country.value = data.country;
+          if (data.trackName && form.TrackName) form.TrackName.value = data.trackName;
+          if (data.biography) form.Biography.value = data.biography;
+        }
+      } catch(e) {}
+    }
+    const successContainer = document.getElementById('apply-success-container');
+    if (successContainer) successContainer.classList.add('hidden');
+    const formContainer = document.getElementById('apply-form-container');
+    if (formContainer) {
+      formContainer.classList.remove('hidden');
+      formContainer.className = "glass-panel p-6 md:p-10";
+    }
+  }
+
   initApply() {
     this.isAuthenticated = false;
     this.applyInterval = setInterval(() => {
@@ -471,7 +544,24 @@ class VanillaApp {
              rulesModal.classList.add('hidden');
              rulesModal.classList.remove('flex');
            }
-           formContainer.className = "glass-panel p-6 md:p-10";
+           const savedDataStr = localStorage.getItem('huevision_application');
+           const successContainer = document.getElementById('apply-success-container');
+           if (savedDataStr && !this.isEditing) {
+              try {
+                 const data = JSON.parse(savedDataStr);
+                 formContainer.className = "glass-panel p-6 md:p-10 hidden";
+                 if (successContainer) {
+                   successContainer.classList.remove('hidden');
+                   const idEl = document.getElementById('saved-id-display');
+                   if (idEl) idEl.innerText = data.hueId;
+                 }
+              } catch(e) {
+                 formContainer.className = "glass-panel p-6 md:p-10";
+              }
+           } else {
+              formContainer.className = "glass-panel p-6 md:p-10";
+              if (successContainer) successContainer.classList.add('hidden');
+           }
         }
       }
     }, 1000);
@@ -512,8 +602,18 @@ class VanillaApp {
       mainApplyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Generate Unique ID
-        const hueId = 'HUE-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        // Retrieve existing ID or generate a new one
+        let hueId = '';
+        const savedDataStr = localStorage.getItem('huevision_application');
+        if (savedDataStr) {
+           try {
+             const data = JSON.parse(savedDataStr);
+             if (data.hueId) hueId = data.hueId;
+           } catch(e) {}
+        }
+        if (!hueId) {
+          hueId = 'HUE-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
         const idInput = document.getElementById('huevision-id-input');
         if (idInput) {
           idInput.value = hueId;
@@ -536,9 +636,29 @@ class VanillaApp {
           });
 
           if (response.ok) {
+            this.isEditing = false;
+            const appData = {
+              hueId: hueId,
+              role: mainApplyForm.Role.value,
+              nickname: mainApplyForm.Nickname.value,
+              country: mainApplyForm.Country?.value || '',
+              trackName: mainApplyForm.TrackName?.value || '',
+              biography: mainApplyForm.Biography.value
+            };
+            localStorage.setItem('huevision_application', JSON.stringify(appData));
+
             mainApplyForm.reset();
             button.innerHTML = originalText;
             button.disabled = false;
+            
+            const formContainer = document.getElementById('apply-form-container');
+            const successContainer = document.getElementById('apply-success-container');
+            if (formContainer && successContainer) {
+              formContainer.classList.add('hidden');
+              successContainer.classList.remove('hidden');
+              const savedIdDisplay = document.getElementById('saved-id-display');
+              if (savedIdDisplay) savedIdDisplay.innerText = hueId;
+            }
             
             // Show Modal
             const modal = document.getElementById('success-modal');

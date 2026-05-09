@@ -62,6 +62,46 @@
        </form>
     </div>
 
+    <div id="apply-success-container" class="hidden glass-panel p-6 md:p-10 text-center relative">
+      <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i data-lucide="check" class="w-8 h-8 text-green-500"></i>
+      </div>
+      <h2 class="text-3xl font-display font-bold text-white mb-2 uppercase">ЗАЯВКА ОТПРАВЛЕНА</h2>
+      <p class="text-white/60 mb-8 font-sans">
+        Ваша заявка успешно отправлена. Ниже указан ваш ID:
+      </p>
+      <div class="bg-black/50 border border-white/10 p-6 mb-8 mt-4 rounded-none mx-auto max-w-sm">
+        <p class="text-xs font-display text-white/40 uppercase tracking-widest mb-2">ВАШ УНИКАЛЬНЫЙ ID</p>
+        <p id="saved-id-display" class="text-4xl font-mono font-bold text-red-500 tracking-widest select-all">HUE-XXXXXX</p>
+      </div>
+      <div class="flex gap-4 max-w-sm mx-auto flex-col sm:flex-row mb-4">
+        <button 
+          onclick="window.app.editApplication()"
+          class="flex-1 py-4 bg-white/5 text-white border border-white/10 font-display font-bold uppercase tracking-widest hover:bg-white/10 transition-all flex justify-center items-center gap-2"
+        >
+          <i data-lucide="edit-2" class="w-5 h-5"></i>
+          Изменить
+        </button>
+        <a 
+          href="https://t.me/HuevisionBot"
+          target="_blank"
+          class="flex-1 py-4 bg-red-500 text-white font-display font-bold uppercase tracking-widest hover:bg-red-600 transition-colors flex justify-center items-center gap-2"
+        >
+          <i data-lucide="send" class="w-5 h-5"></i>
+          В бот
+        </a>
+      </div>
+      <div class="flex gap-4 max-w-sm mx-auto">
+        <button 
+          onclick="window.app.cancelApplication()"
+          class="flex-1 py-3 text-red-500/70 border border-red-500/20 font-display font-bold uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 transition-all flex justify-center items-center gap-2 text-sm"
+        >
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+          Отозвать заявку
+        </button>
+      </div>
+    </div>
+
     <div id="apply-form-container" class="glass-panel p-6 md:p-10 opacity-20 pointer-events-none select-none filter blur-sm">
       <div class="flex bg-white/5 p-1 mb-8" id="role-tabs">
         <button
@@ -128,10 +168,43 @@
     </div>
   </div>
 
+  <!-- Cancel Modal -->
+  <div id="cancel-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
+    <div class="relative z-10 glass-panel p-8 md:p-12 max-w-lg w-full mx-4 text-center border-red-500/30">
+      <button onclick="window.app.closeCancelModal()" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      <div class="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i data-lucide="alert-triangle" class="w-10 h-10 text-red-500"></i>
+      </div>
+      <h2 class="text-3xl font-display font-bold text-white mb-4 uppercase tracking-widest">ОТМЕНА ЗАЯВКИ</h2>
+      <p class="text-white/60 mb-8 font-sans">Вы уверены, что хотите отозвать свою заявку? Введенные данные будут удалены безвозвратно.</p>
+      
+      <div class="flex gap-4 max-w-sm mx-auto">
+        <button 
+          onclick="window.app.closeCancelModal()"
+          class="flex-1 py-4 bg-white/5 text-white border border-white/10 font-display font-bold uppercase tracking-widest hover:bg-white/10 transition-colors"
+        >
+          НЕТ
+        </button>
+        <button 
+          onclick="window.app.confirmCancelApplication()"
+          class="flex-1 py-4 bg-red-500 text-white font-display font-bold uppercase tracking-widest hover:bg-red-600 transition-colors"
+        >
+          ДА, УДАЛИТЬ
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Success Modal -->
   <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
     <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
     <div class="relative z-10 glass-panel p-8 md:p-12 max-w-lg w-full mx-4 text-center border-red-500/30">
+      <button onclick="document.getElementById('success-modal').classList.add('hidden')" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
       <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
         <i data-lucide="check" class="w-10 h-10 text-green-500"></i>
       </div>
