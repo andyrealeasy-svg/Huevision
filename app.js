@@ -187,31 +187,39 @@ class VanillaApp {
   }
 
   initHub() {
-    this.timerInterval = setInterval(() => {
+    const tick = () => {
       const now = new Date().getTime();
       const distance = this.targetDate - now;
       const el = document.getElementById('countdown-container');
       if(!el) {
-         clearInterval(this.timerInterval);
+         if (this.timerInterval) clearInterval(this.timerInterval);
          return;
       }
 
       if (distance < 0) {
-        clearInterval(this.timerInterval);
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        const textEl = document.getElementById('countdown-text');
+        if (textEl) textEl.remove();
+        
         const parent = el.parentElement;
-        if (parent) {
-          parent.innerHTML = `
+        if (parent && !parent.hasAttribute('data-unlocked')) {
+          parent.setAttribute('data-unlocked', 'true');
+          el.outerHTML = `
             <div class="text-2xl md:text-4xl font-display font-black tracking-widest text-white uppercase text-center animate-pulse text-glow drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] border border-white/20 bg-white/5 px-8 py-6 rounded-xl relative overflow-hidden flex items-center justify-center gap-4">
               <i data-lucide="unlock" class="text-red-500 w-8 h-8"></i>
               ПРИЕМ ЗАЯВОК ОТКРЫТ!
             </div>
           `;
           lucide.createIcons();
-        } else {
+        } else if (!parent) {
           el.innerHTML = '';
         }
         return;
       }
+
+      const textEl = document.getElementById('countdown-text');
+      if (textEl) textEl.classList.remove('hidden');
+      el.classList.remove('hidden');
 
       const d = Math.floor(distance / (1000 * 60 * 60 * 24));
       const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -237,7 +245,10 @@ class VanillaApp {
         </div>`;
 
       el.innerHTML = renderUnit('ДНЕЙ', d) + renderUnit('ЧАСОВ', h) + renderUnit('МИНУТ', m) + renderUnit('СЕКУНД', s);
-    }, 1000);
+    };
+
+    tick();
+    this.timerInterval = setInterval(tick, 1000);
   }
 
   setLineupFilter(filter) {
@@ -253,7 +264,7 @@ class VanillaApp {
   }
 
   checkUpdateModal() {
-    const version = 'v1.2.2';
+    const version = 'v1.2.3';
     const lastSeen = localStorage.getItem('last_seen_version');
     if (lastSeen !== version) {
       setTimeout(() => {
@@ -483,7 +494,7 @@ class VanillaApp {
     const formContainer = document.getElementById('apply-form-container');
     if (formContainer) {
       formContainer.classList.remove('hidden');
-      formContainer.className = "glass-panel p-6 md:p-10";
+      formContainer.className = "glass-panel p-6 md:p-10 relative";
     }
   }
 
@@ -508,78 +519,52 @@ class VanillaApp {
     const formContainer = document.getElementById('apply-form-container');
     if (formContainer) {
       formContainer.classList.remove('hidden');
-      formContainer.className = "glass-panel p-6 md:p-10";
+      formContainer.className = "glass-panel p-6 md:p-10 relative";
     }
   }
 
   initApply() {
     this.isAuthenticated = false;
-    this.applyInterval = setInterval(() => {
+    const tick = () => {
       const lockOverlay = document.getElementById('apply-lock-overlay');
-      const rulesModal = document.getElementById('apply-rules-modal');
       const formContainer = document.getElementById('apply-form-container');
 
       if(!lockOverlay) {
-        clearInterval(this.applyInterval);
+        if (this.applyInterval) clearInterval(this.applyInterval);
         return;
       }
 
       const isLocked = new Date().getTime() < this.targetDate;
-      const rulesAccepted = sessionStorage.getItem('huevision_rules_accepted') === 'true';
       
       if (isLocked && !this.isAuthenticated) {
         lockOverlay.classList.remove('hidden');
-        if(rulesModal) rulesModal.classList.add('hidden');
-        formContainer.className = "glass-panel p-6 md:p-10 opacity-20 pointer-events-none select-none filter blur-sm";
+        formContainer.className = "glass-panel p-6 md:p-10 relative opacity-20 pointer-events-none select-none filter blur-sm";
       } else {
         lockOverlay.classList.add('hidden');
         
-        // Show rules if not accepted
-        if (!rulesAccepted && rulesModal) {
-           rulesModal.classList.remove('hidden');
-           rulesModal.classList.add('flex');
-           formContainer.className = "glass-panel p-6 md:p-10 opacity-20 pointer-events-none select-none filter blur-sm";
-        } else {
-           if(rulesModal) {
-             rulesModal.classList.add('hidden');
-             rulesModal.classList.remove('flex');
-           }
-           const savedDataStr = localStorage.getItem('huevision_application');
-           const successContainer = document.getElementById('apply-success-container');
-           if (savedDataStr && !this.isEditing) {
-              try {
-                 const data = JSON.parse(savedDataStr);
-                 formContainer.className = "glass-panel p-6 md:p-10 hidden";
-                 if (successContainer) {
-                   successContainer.classList.remove('hidden');
-                   const idEl = document.getElementById('saved-id-display');
-                   if (idEl) idEl.innerText = data.hueId;
-                 }
-              } catch(e) {
-                 formContainer.className = "glass-panel p-6 md:p-10";
+        const savedDataStr = localStorage.getItem('huevision_application');
+        const successContainer = document.getElementById('apply-success-container');
+        if (savedDataStr && !this.isEditing) {
+          try {
+              const data = JSON.parse(savedDataStr);
+              formContainer.className = "glass-panel p-6 md:p-10 relative hidden";
+              if (successContainer) {
+                successContainer.classList.remove('hidden');
+                const idEl = document.getElementById('saved-id-display');
+                if (idEl) idEl.innerText = data.hueId;
               }
-           } else {
-              formContainer.className = "glass-panel p-6 md:p-10";
-              if (successContainer) successContainer.classList.add('hidden');
-           }
+          } catch(e) {
+              formContainer.className = "glass-panel p-6 md:p-10 relative";
+          }
+        } else {
+          formContainer.className = "glass-panel p-6 md:p-10 relative";
+          if (successContainer) successContainer.classList.add('hidden');
         }
       }
-    }, 1000);
+    };
 
-    const acceptBtn = document.getElementById('accept-rules-btn');
-    if (acceptBtn) {
-      acceptBtn.addEventListener('click', () => {
-         sessionStorage.setItem('huevision_rules_accepted', 'true');
-         // The interval will take care of hiding the modal immediately
-         const rulesModal = document.getElementById('apply-rules-modal');
-         if(rulesModal) {
-            rulesModal.classList.add('hidden');
-            rulesModal.classList.remove('flex');
-         }
-         const formContainer = document.getElementById('apply-form-container');
-         if(formContainer) formContainer.className = "glass-panel p-6 md:p-10";
-      });
-    }
+    tick();
+    this.applyInterval = setInterval(tick, 1000);
 
     const bypassForm = document.getElementById('bypass-form');
     if (bypassForm) {
@@ -601,6 +586,29 @@ class VanillaApp {
     if (mainApplyForm) {
       mainApplyForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        const formError = document.getElementById('form-error-message');
+        if (formError) {
+          formError.classList.add('hidden');
+          formError.innerText = '';
+        }
+
+        if (!mainApplyForm.checkValidity()) {
+          if (formError) {
+            formError.classList.remove('hidden');
+            formError.innerText = 'ПОЖАЛУЙСТА, ЗАПОЛНИТЕ ВСЕ ПОЛЯ';
+          }
+          return;
+        }
+
+        const rulesCheckbox = document.getElementById('rules-checkbox');
+        if (rulesCheckbox && !rulesCheckbox.checked) {
+          if (formError) {
+            formError.classList.remove('hidden');
+            formError.innerText = 'ВАМ НЕОБХОДИМО ОЗНАКОМИТЬСЯ С ПРАВИЛАМИ И ПРИНЯТЬ ИХ';
+          }
+          return;
+        }
         
         // Retrieve existing ID or generate a new one
         let hueId = '';
