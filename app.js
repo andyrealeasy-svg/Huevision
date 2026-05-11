@@ -264,7 +264,7 @@ class VanillaApp {
   }
 
   checkUpdateModal() {
-    const version = 'v1.2.3';
+    const version = 'v1.2.4';
     const lastSeen = localStorage.getItem('last_seen_version');
     if (lastSeen !== version) {
       setTimeout(() => {
@@ -482,6 +482,27 @@ class VanillaApp {
   }
 
   confirmCancelApplication() {
+    const savedDataStr = localStorage.getItem('huevision_application');
+    if (savedDataStr) {
+      try {
+        const data = JSON.parse(savedDataStr);
+        fetch('https://formspree.io/f/xzdyoeyk', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            Action: 'ОТМЕНА ЗАЯВКИ',
+            HuevisionID: data.hueId || 'Неизвестно',
+            Role: data.role || 'Неизвестно',
+            Nickname: data.nickname || 'Неизвестно'
+          })
+        }).catch(err => console.error('Failed to notify formspree', err));
+      } catch (e) {
+        console.error('Error parsing saved data', e);
+      }
+    }
+
     this.closeCancelModal();
     localStorage.removeItem('huevision_application');
     this.isEditing = false;
