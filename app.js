@@ -264,7 +264,7 @@ class VanillaApp {
   }
 
   checkUpdateModal() {
-    const version = 'v1.2.4';
+    const version = 'v1.2.5';
     const lastSeen = localStorage.getItem('last_seen_version');
     if (lastSeen !== version) {
       setTimeout(() => {
